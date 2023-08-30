@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979f0eab412045a9b51b0bc8c6835971, type: 3}
+  m_Name: DungeonBuilder
+  m_EditorClassIdentifier: 
+  dungeonBuilder:
+    rid: 949880876072697857
+  references:
+    version: 2
+    RefIds:
+    - rid: 949880876072697857
+      type: {class: DefaultDungeonBuilder, ns: OTOGIRI.DungeonSystems, asm: Assembly-CSharp}
+      data:
+        dungeonSize: {x: 60, y: 60}
+        roomSizeMin: {x: 4, y: 4}
+        roomSizeMax: {x: 10, y: 10}
+        roomCount: 10
