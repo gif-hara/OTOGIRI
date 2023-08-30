@@ -21,6 +21,6 @@ MonoBehaviour:
       type: {class: DefaultDungeonBuilder, ns: OTOGIRI.DungeonSystems, asm: Assembly-CSharp}
       data:
         dungeonSize: {x: 60, y: 60}
-        roomSizeMin: {x: 4, y: 4}
-        roomSizeMax: {x: 10, y: 10}
+        roomSizeMin: {x: 6, y: 6}
+        roomSizeMax: {x: 12, y: 12}
         roomCount: 10

@@ -51,15 +51,8 @@ namespace OTOGIRI.UISystems
             {
                 for (var x = 0; x < cells.GetLength(1); x++)
                 {
-                    this.mapTexture.SetPixel(x, y, cells[y, x] switch
-                    {
-                        Define.CellType.Abyss => this.abyssColor,
-                        Define.CellType.Waterway => this.waterwayColor,
-                        Define.CellType.Ground => this.groundColor,
-                        Define.CellType.Step => this.stepColor,
-                        Define.CellType.Wall => this.wallColor,
-                        _ => throw new System.NotImplementedException($"{cells[y, x]}は未実装です")
-                    });
+                    var cell = cells[y, x];
+                    this.mapTexture.SetPixel(x, y, GetColor(cell));
                 }
             }
             this.mapTexture.Apply();
@@ -67,6 +60,21 @@ namespace OTOGIRI.UISystems
         
         public void UpdateCell(Vector2Int position, Define.CellType cellType)
         {
+            this.mapTexture.SetPixel(position.x, position.y, GetColor(cellType));
+            this.mapTexture.Apply();
+        }
+
+        private Color GetColor(Define.CellType cellType)
+        {
+            return cellType switch
+            {
+                Define.CellType.Abyss => this.abyssColor,
+                Define.CellType.Waterway => this.waterwayColor,
+                Define.CellType.Ground => this.groundColor,
+                Define.CellType.Step => this.stepColor,
+                Define.CellType.Wall => this.wallColor,
+                _ => throw new System.NotImplementedException($"{cellType}は未実装です")
+            };
         }
     }
 }

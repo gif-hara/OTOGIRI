@@ -26,37 +26,63 @@ namespace OTOGIRI.DungeonSystems
         {
             var tiles = new Define.CellType[this.dungeonSize.y, this.dungeonSize.x];
             
-            // 部屋を作成する
-            var rooms = new List<Room>();
-            for (var i = 0; i < this.roomCount; i++)
+            // 最初は全て壁に設定する
+            for (var y = 0; y < this.dungeonSize.y; y++)
             {
-                var width = Random.Range(this.roomSizeMin.x, this.roomSizeMax.x);
-                var height = Random.Range(this.roomSizeMin.y, this.roomSizeMax.y);
-                var x = Random.Range(1, this.dungeonSize.x - width - 1);
-                var y = Random.Range(1, this.dungeonSize.y - height - 1);
-                var newRoom = new Room(x, y, width, height);
-                if(!IsRoomsOverlap(rooms, newRoom))
+                for (var x = 0; x < this.dungeonSize.x; x++)
                 {
-                    rooms.Add(newRoom);
-                    // tilesに書き込む
-                    for (var j = y; j < y + height; j++)
+                    tiles[y, x] = Define.CellType.Wall;
+                }
+            }
+            
+            // 部屋を作成する
+            var rooms = CreateRooms();
+            
+            // tilesに書き込む
+            foreach (var room in rooms)
+            {
+                for (var y = 0; y < room.Rect.height; y++)
+                {
+                    for (var x = 0; x < room.Rect.width; x++)
                     {
-                        for (var k = x; k < x + width; k++)
-                        {
-                            tiles[j, k] = Define.CellType.Wall;
-                        }
+                        var position = new Vector2Int((int)room.Rect.x + x, (int)room.Rect.y + y);
+                        tiles[position.y, position.x] = Define.CellType.Ground;
                     }
                 }
             }
             
             return new Dungeon(tiles, rooms);
         }
+
+        private List<Room> CreateRooms()
+        {
+            var rooms = new List<Room>();
+            for (var i = 0; i < this.roomCount; i++)
+            {
+                var width = Random.Range(this.roomSizeMin.x, this.roomSizeMax.x);
+                var height = Random.Range(this.roomSizeMin.y, this.roomSizeMax.y);
+                var x = Random.Range(0, this.dungeonSize.x - width);
+                var y = Random.Range(0, this.dungeonSize.y - height);
+                var newRoom = new Room(x, y, width, height);
+                if(!IsRoomsOverlap(rooms, newRoom))
+                {
+                    rooms.Add(newRoom);
+                }
+            }
+
+            return rooms;
+        }
         
         private static bool IsRoomsOverlap(List<Room> rooms, Room room)
         {
+            var roomRect = room.Rect;
+            roomRect.x--;
+            roomRect.y--;
+            roomRect.width += 2;
+            roomRect.height += 2;
             foreach (var r in rooms)
             {
-                if (r.Rect.Overlaps(room.Rect))
+                if (r.Rect.Overlaps(roomRect))
                 {
                     return true;
                 }
