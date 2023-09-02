@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OTOGIRI.Scripts;
 using UnityEngine;
 
 namespace OTOGIRI.DungeonSystems
@@ -17,21 +16,18 @@ namespace OTOGIRI.DungeonSystems
             this.Cells = cells;
             this.Rooms = rooms;
         }
-
-        public void Print()
+        
+        public bool IsRoom(Vector2Int position)
         {
-            var sb = new System.Text.StringBuilder();
-            for (var y = 0; y < this.Cells.GetLength(0); y++)
+            foreach (var room in this.Rooms)
             {
-                for (var x = 0; x < this.Cells.GetLength(1); x++)
+                if (room.Rect.Contains(position))
                 {
-                    sb.Append(this.Cells[y, x] == Define.CellType.Ground ? "■" : "□");
+                    return true;
                 }
-                sb.AppendLine();
             }
-            // クリップボードにコピーする
-            GUIUtility.systemCopyBuffer = sb.ToString();
-            Debug.Log(sb.ToString());
+
+            return false;
         }
     }
 }

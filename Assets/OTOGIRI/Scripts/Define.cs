@@ -1,4 +1,4 @@
-﻿namespace OTOGIRI.Scripts
+﻿namespace OTOGIRI
 {
     public static class Define
     {
@@ -12,6 +12,14 @@
             Ground = 0,
             Step = 1,
             Wall = 2,
+        }
+        
+        public enum Direction
+        {
+            Up,
+            Down,
+            Left,
+            Right,
         }
     }
 }

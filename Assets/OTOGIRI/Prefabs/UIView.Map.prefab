@@ -293,6 +293,8 @@ MonoBehaviour:
   groundColor: {r: 1, g: 1, b: 1, a: 1}
   stepColor: {r: 0.5471698, g: 0.5471698, b: 0.5471698, a: 1}
   wallColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 1}
+  corridorColor: {r: 0.3433962, g: 0.43816382, b: 1, a: 1}
+  roomColor: {r: 0, g: 0.13087201, b: 1, a: 1}
 --- !u!224 &6551252697227504051 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5280456523711331148, guid: 26c24f8d71b86f5459ca77c826e237c0, type: 3}

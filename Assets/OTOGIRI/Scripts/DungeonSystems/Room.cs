@@ -2,18 +2,20 @@
 
 namespace OTOGIRI.DungeonSystems
 {
-    public struct Room
+    public readonly struct Room
     {
-        public Rect Rect { get; }
-        
-        public Room(Rect rect)
-        {
-            this.Rect = rect;
-        }
+        public RectInt Rect { get; }
         
         public Room(int x, int y, int width, int height)
         {
-            this.Rect = new Rect(x, y, width, height);
+            this.Rect = new RectInt(x, y, width, height);
+        }
+
+        public Vector2Int GetRandomPointInsideRoom()
+        {
+            var x = Random.Range(Rect.xMin, Rect.xMax);
+            var y = Random.Range(Rect.yMin, Rect.yMax);
+            return new Vector2Int(x, y);
         }
     }
 }

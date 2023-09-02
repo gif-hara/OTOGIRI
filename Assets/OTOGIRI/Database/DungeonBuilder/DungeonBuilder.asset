@@ -20,7 +20,7 @@ MonoBehaviour:
     - rid: 949880876072697857
       type: {class: DefaultDungeonBuilder, ns: OTOGIRI.DungeonSystems, asm: Assembly-CSharp}
       data:
-        dungeonSize: {x: 60, y: 60}
-        roomSizeMin: {x: 6, y: 6}
-        roomSizeMax: {x: 12, y: 12}
-        roomCount: 10
+        dungeonSize: {x: 64, y: 64}
+        roomCount: 4
+        splitRandomRange: 10
+        roomRandomRange: 3

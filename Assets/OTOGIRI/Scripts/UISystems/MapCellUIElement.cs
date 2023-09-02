@@ -1,5 +1,4 @@
-﻿using OTOGIRI.Scripts;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace OTOGIRI.UISystems

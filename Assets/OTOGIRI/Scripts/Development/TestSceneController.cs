@@ -3,7 +3,6 @@ using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using Cysharp.Threading.Tasks.Triggers;
 using OTOGIRI.DungeonSystems;
-using OTOGIRI.Scripts;
 using OTOGIRI.UISystems;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,12 +17,9 @@ namespace OTOGIRI.Development
         [SerializeField]
         private MapUIView mapUIViewPrefab;
         
-        private async void Start()
+        private void Start()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: this.destroyCancellationToken);
-            
             var dungeon = this.dungeonBuilder.Build();
-            dungeon.Print();
             
             var mapUIPresenter = new MapUIPresenter(this.mapUIViewPrefab);
             mapUIPresenter.PresentationAsync(this.destroyCancellationToken)
@@ -36,12 +32,12 @@ namespace OTOGIRI.Development
                 {
                     if (Keyboard.current[Key.Q].wasPressedThisFrame)
                     {
-                        const int x = 3;
-                        const int y = 4;
+                        const int x = 0;
+                        const int y = 0;
                         dungeon.Cells[y, x] = dungeon.Cells[y, x] == Define.CellType.Ground ? Define.CellType.Wall : Define.CellType.Ground;
-                        mapUIPresenter.UpdateCell(new Vector2Int(x, y), dungeon.Cells[y, x]);
+                        mapUIPresenter.UpdateCell(dungeon, new Vector2Int(x, y), dungeon.Cells[y, x]);
                     }
-                    if (Keyboard.current[Key.W].wasPressedThisFrame)
+                    if (Keyboard.current[Key.W].isPressed)
                     {
                         dungeon = this.dungeonBuilder.Build();
                         mapUIPresenter.CreateMap(dungeon);
