@@ -566,10 +566,14 @@ MonoBehaviour:
   roomColor: {r: 0, g: 0.8892269, b: 1, a: 1}
   corridorColor: {r: 1, g: 1, b: 1, a: 1}
   chunkColor: {r: 1, g: 0.94375, b: 0, a: 1}
+  searchNeighborChunkColor: {r: 1, g: 0, b: 1, a: 1}
+  searchNeighborChunkPointColor: {r: 1, g: 0, b: 1, a: 1}
+  detectedNeighborChunkColor: {r: 1, g: 0, b: 0, a: 1}
   splitRandomRange: 10
   roomRandomRange: 3
   image: {fileID: 1585762752}
   isStepCorridorProcess: 0
+  isStepNeighborChunkProcess: 0
   uiCamera: {fileID: 963194227}
 --- !u!4 &2058798261
 Transform:

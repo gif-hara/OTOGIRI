@@ -28,6 +28,15 @@ public class RogueLikeMapGenerator : MonoBehaviour
     private Color chunkColor;
 
     [SerializeField]
+    private Color searchNeighborChunkColor;
+
+    [SerializeField]
+    private Color searchNeighborChunkPointColor;
+
+    [SerializeField]
+    private Color detectedNeighborChunkColor;
+
+    [SerializeField]
     private int splitRandomRange;
 
     [SerializeField]
@@ -38,6 +47,9 @@ public class RogueLikeMapGenerator : MonoBehaviour
 
     [SerializeField]
     private bool isStepCorridorProcess;
+
+    [SerializeField]
+    private bool isStepNeighborChunkProcess;
 
     [SerializeField]
     private Camera uiCamera;
@@ -213,7 +225,9 @@ public class RogueLikeMapGenerator : MonoBehaviour
                 // 上方向に隣接しているか
                 for (var x = chunk.raw.x; x < chunk.raw.x + chunk.raw.width; x++)
                 {
+                    var outOfRange = false;
                     var step = 1;
+                    Debug.Log($"Start Up Neighbor x: {x}, y: {chunk.raw.y}");
                     while (!isNeighbor)
                     {
                         var point = new Vector2Int(
@@ -222,8 +236,32 @@ public class RogueLikeMapGenerator : MonoBehaviour
                         );
                         step++;
 
+                        Debug.Log($"x: {point.x}, y: {point.y}");
+                        if (this.isStepNeighborChunkProcess)
+                        {
+                            this.SetTexture();
+                            for (var ix = chunk.raw.x; ix < chunk.raw.x + chunk.raw.width; ix++)
+                            {
+                                for (var iy = chunk.raw.y; iy < chunk.raw.y + chunk.raw.height; iy++)
+                                {
+                                    this.UpdateTexture(ix, iy, this.texture.GetPixel(ix, iy) * this.searchNeighborChunkColor);
+                                }
+                            }
+                            for (var ix = neighborChunk.raw.x; ix < neighborChunk.raw.x + neighborChunk.raw.width; ix++)
+                            {
+                                for (var iy = neighborChunk.raw.y; iy < neighborChunk.raw.y + neighborChunk.raw.height; iy++)
+                                {
+                                    this.UpdateTexture(ix, iy, this.texture.GetPixel(ix, iy) * this.searchNeighborChunkColor);
+                                }
+                            }
+                            this.UpdateTexture(point.x, point.y, this.searchNeighborChunkPointColor);
+                            this.texture.Apply();
+                            await UniTask.WaitWhile(() => !Keyboard.current[Key.Space].wasPressedThisFrame, cancellationToken: this.generateCancellationTokenSource.Token);
+                        }
+
                         if (point.x < 0 || point.x >= this.mapSize.x || point.y < 0 || point.y >= this.mapSize.y)
                         {
+                            outOfRange = true;
                             break;
                         }
 
@@ -240,6 +278,21 @@ public class RogueLikeMapGenerator : MonoBehaviour
                                         direction = Direction.Up,
                                     });
                                     isNeighbor = true;
+                                    if (this.isStepNeighborChunkProcess)
+                                    {
+                                        Debug.Log($"Detect Up Neighbor x: {point.x}, y: {point.y}");
+                                        this.SetTexture();
+                                        for (var ix = neighborChunk.raw.x; ix < neighborChunk.raw.x + neighborChunk.raw.width; ix++)
+                                        {
+                                            for (var iy = neighborChunk.raw.y; iy < neighborChunk.raw.y + neighborChunk.raw.height; iy++)
+                                            {
+                                                this.UpdateTexture(ix, iy, this.texture.GetPixel(ix, iy) * this.detectedNeighborChunkColor);
+                                            }
+                                        }
+                                        this.UpdateTexture(point.x, point.y, this.searchNeighborChunkPointColor);
+                                        this.texture.Apply();
+                                        await UniTask.WaitWhile(() => !Keyboard.current[Key.A].wasPressedThisFrame, cancellationToken: this.generateCancellationTokenSource.Token);
+                                    }
                                     break;
                                 }
                                 else
@@ -253,6 +306,11 @@ public class RogueLikeMapGenerator : MonoBehaviour
                         {
                             break;
                         }
+                    }
+
+                    if (outOfRange)
+                    {
+                        break;
                     }
 
                     if (isNeighbor)
@@ -600,16 +658,21 @@ public class RogueLikeMapGenerator : MonoBehaviour
                 break;
             }
         }
-        var isChunk = false;
+        var isSelectedChunkPoint = false;
         if (this.selectedChunk != null)
         {
-            isChunk = this.selectedChunk.raw.Contains(new Vector2Int(x, y));
+            isSelectedChunkPoint = this.selectedChunk.raw.Contains(new Vector2Int(x, y));
         }
         var color = cellType == CellType.Wall ? this.wallColor : isRoom ? this.roomColor : this.corridorColor;
-        if (isChunk)
+        if (isSelectedChunkPoint)
         {
             color *= this.chunkColor;
         }
+        this.UpdateTexture(x, y, color);
+    }
+
+    private void UpdateTexture(int x, int y, Color color)
+    {
         this.texture.SetPixel(x, this.mapSize.y - y - 1, color);
     }
 
