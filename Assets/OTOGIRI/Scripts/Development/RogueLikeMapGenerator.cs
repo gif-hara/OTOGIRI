@@ -61,8 +61,6 @@ public class RogueLikeMapGenerator : MonoBehaviour
 
     private CellType[,] cells;
 
-    private readonly List<NeighborChunkData> neighborChunkDatas = new();
-
     /// <summary>
     /// 作成した部屋のリスト
     /// </summary>
@@ -139,7 +137,6 @@ public class RogueLikeMapGenerator : MonoBehaviour
                 raw = new RectInt(0, 0, this.mapSize.x, this.mapSize.y),
             }
         };
-        this.neighborChunkDatas.Clear();
 
         var roomCount = Random.Range(this.roomCountRange.x, this.roomCountRange.y + 1);
         for (var i = 0; i < roomCount - 1; i++)
@@ -212,141 +209,147 @@ public class RogueLikeMapGenerator : MonoBehaviour
         // 隣接しているチャンクを探す
         foreach (var chunk in this.chunks)
         {
-            // 上方向に隣接しているか
-            for (var x = chunk.raw.x; x < chunk.raw.x + chunk.raw.width; x++)
+            // 上方向に隣接しているチャンクを探す
+            var upRect = new RectInt(chunk.raw.x, 0, chunk.raw.width, chunk.raw.y);
+            if (upRect.width > 0 && upRect.height > 0)
             {
-                var point = new Vector2Int(x, chunk.raw.y) + Direction.Up.ToVector2Int();
-                point.Raycast(Direction.Up, this.mapSize.y - 1, p =>
+                var neighborChunks = new List<Chunk>();
+                var minDistance = float.MaxValue;
+                Chunk currentChunk = null;
+                foreach (var c in this.chunks)
                 {
-                    foreach (var otherChunk in this.chunks)
+                    if (c.raw.Overlaps(upRect))
                     {
-                        if (otherChunk == chunk || neighborChunkDatas.Exists(n => n.IsMatch(chunk, otherChunk)))
+                        var distance = (chunk.raw.center - c.raw.center).sqrMagnitude;
+                        if (distance < minDistance)
                         {
-                            continue;
-                        }
-                        if (otherChunk.raw.Contains(p))
-                        {
-                            neighborChunkDatas.Add(new NeighborChunkData
-                            {
-                                chunkA = chunk,
-                                chunkB = otherChunk,
-                                aToBDirection = Direction.Up,
-                            });
-                            return true;
+                            minDistance = distance;
+                            currentChunk = c;
                         }
                     }
-
-                    return false;
-                });
+                }
+                if (currentChunk != null)
+                {
+                    chunk.neighborChunkDatas.Add(new NeighborChunkData
+                    {
+                        chunk = currentChunk,
+                        direction = Direction.Up
+                    });
+                }
             }
 
-            // 下方向に隣接しているか
-            for (var x = chunk.raw.x; x < chunk.raw.x + chunk.raw.width; x++)
+            // 下方向に隣接しているチャンクを探す
+            var downRect = new RectInt(chunk.raw.x, chunk.raw.y + chunk.raw.height, chunk.raw.width, this.mapSize.y - chunk.raw.y - chunk.raw.height);
+            if (downRect.width > 0 && downRect.height > 0)
             {
-                var point = new Vector2Int(x, chunk.raw.y + chunk.raw.height - 1) + Direction.Down.ToVector2Int();
-                point.Raycast(Direction.Down, this.mapSize.y - 1, p =>
+                var neighborChunks = new List<Chunk>();
+                var minDistance = float.MaxValue;
+                Chunk currentChunk = null;
+                foreach (var c in this.chunks)
                 {
-                    foreach (var otherChunk in this.chunks)
+                    if (c.raw.Overlaps(downRect))
                     {
-                        if (otherChunk == chunk || neighborChunkDatas.Exists(n => n.IsMatch(chunk, otherChunk)))
+                        var distance = (chunk.raw.center - c.raw.center).sqrMagnitude;
+                        if (distance < minDistance)
                         {
-                            continue;
-                        }
-                        if (otherChunk.raw.Contains(p))
-                        {
-                            neighborChunkDatas.Add(new NeighborChunkData
-                            {
-                                chunkA = chunk,
-                                chunkB = otherChunk,
-                                aToBDirection = Direction.Down,
-                            });
-                            return true;
+                            minDistance = distance;
+                            currentChunk = c;
                         }
                     }
-
-                    return false;
-                });
+                }
+                if (currentChunk != null)
+                {
+                    chunk.neighborChunkDatas.Add(new NeighborChunkData
+                    {
+                        chunk = currentChunk,
+                        direction = Direction.Down
+                    });
+                }
             }
 
-            // 左方向に隣接しているか
-            for (var y = chunk.raw.y; y < chunk.raw.y + chunk.raw.height; y++)
+            // 左方向に隣接しているチャンクを探す
+            var leftRect = new RectInt(0, chunk.raw.y, chunk.raw.x, chunk.raw.height);
+            if (leftRect.width > 0 && leftRect.height > 0)
             {
-                var point = new Vector2Int(chunk.raw.x, y) + Direction.Left.ToVector2Int();
-                point.Raycast(Direction.Left, this.mapSize.x - 1, p =>
+                var neighborChunks = new List<Chunk>();
+                var minDistance = float.MaxValue;
+                Chunk currentChunk = null;
+                foreach (var c in this.chunks)
                 {
-                    foreach (var otherChunk in this.chunks)
+                    if (c.raw.Overlaps(leftRect))
                     {
-                        if (otherChunk == chunk || neighborChunkDatas.Exists(n => n.IsMatch(chunk, otherChunk)))
+                        var distance = (chunk.raw.center - c.raw.center).sqrMagnitude;
+                        if (distance < minDistance)
                         {
-                            continue;
-                        }
-                        if (otherChunk.raw.Contains(p))
-                        {
-                            neighborChunkDatas.Add(new NeighborChunkData
-                            {
-                                chunkA = chunk,
-                                chunkB = otherChunk,
-                                aToBDirection = Direction.Left,
-                            });
-                            return true;
+                            minDistance = distance;
+                            currentChunk = c;
                         }
                     }
-
-                    return false;
-                });
+                }
+                if (currentChunk != null)
+                {
+                    chunk.neighborChunkDatas.Add(new NeighborChunkData
+                    {
+                        chunk = currentChunk,
+                        direction = Direction.Left
+                    });
+                }
             }
 
-            // 右方向に隣接しているか
-            for (var y = chunk.raw.y; y < chunk.raw.y + chunk.raw.height; y++)
+            // 右方向に隣接しているチャンクを探す
+            var rightRect = new RectInt(chunk.raw.x + chunk.raw.width, chunk.raw.y, this.mapSize.x - chunk.raw.x - chunk.raw.width, chunk.raw.height);
+            if (rightRect.width > 0 && rightRect.height > 0)
             {
-                var point = new Vector2Int(chunk.raw.x + chunk.raw.width - 1, y) + Direction.Right.ToVector2Int();
-                point.Raycast(Direction.Right, this.mapSize.x - 1, p =>
+                var neighborChunks = new List<Chunk>();
+                var minDistance = float.MaxValue;
+                Chunk currentChunk = null;
+                foreach (var c in this.chunks)
                 {
-                    foreach (var otherChunk in this.chunks)
+                    if (c.raw.Overlaps(rightRect))
                     {
-                        if (otherChunk == chunk || neighborChunkDatas.Exists(n => n.IsMatch(chunk, otherChunk)))
+                        var distance = (chunk.raw.center - c.raw.center).sqrMagnitude;
+                        if (distance < minDistance)
                         {
-                            continue;
-                        }
-                        if (otherChunk.raw.Contains(p))
-                        {
-                            neighborChunkDatas.Add(new NeighborChunkData
-                            {
-                                chunkA = chunk,
-                                chunkB = otherChunk,
-                                aToBDirection = Direction.Right,
-                            });
-                            return true;
+                            minDistance = distance;
+                            currentChunk = c;
                         }
                     }
-
-                    return false;
-                });
+                }
+                if (currentChunk != null)
+                {
+                    chunk.neighborChunkDatas.Add(new NeighborChunkData
+                    {
+                        chunk = currentChunk,
+                        direction = Direction.Right
+                    });
+                }
             }
         }
 
         // 廊下を作る
-        foreach (var neighbor in neighborChunkDatas)
+        foreach (var chunk in this.chunks)
         {
-            var d = neighbor.aToBDirection;
-            var id = d.Inverse();
-            var start = new Vector2Int(
-                d switch
-                {
-                    Direction.Left => neighbor.chunkA.room.x,
-                    Direction.Right => neighbor.chunkA.room.x + neighbor.chunkA.room.width - 1,
-                    _ => neighbor.chunkA.room.x + Random.Range(1, neighbor.chunkA.room.width - 1)
-                },
-                d switch
-                {
-                    Direction.Up => neighbor.chunkA.room.y,
-                    Direction.Down => neighbor.chunkA.room.y + neighbor.chunkA.room.height - 1,
-                    _ => neighbor.chunkA.room.y + Random.Range(1, neighbor.chunkA.room.height - 1)
-                }
-            );
-            var currentPosition = start;
-            var currentDirection = d;
-            var wayPoints = new List<Vector2Int>
+            foreach (var neighbor in chunk.neighborChunkDatas)
+            {
+                var d = neighbor.direction;
+                var id = d.Inverse();
+                var start = new Vector2Int(
+                    d switch
+                    {
+                        Direction.Left => chunk.room.x,
+                        Direction.Right => chunk.room.x + chunk.room.width - 1,
+                        _ => chunk.room.x + Random.Range(1, chunk.room.width - 1)
+                    },
+                    d switch
+                    {
+                        Direction.Up => chunk.room.y,
+                        Direction.Down => chunk.room.y + chunk.room.height - 1,
+                        _ => chunk.room.y + Random.Range(1, chunk.room.height - 1)
+                    }
+                );
+                var currentPosition = start;
+                var currentDirection = d;
+                var wayPoints = new List<Vector2Int>
                 {
                     // 自分のChunkの境界線
                     new(
@@ -354,14 +357,14 @@ public class RogueLikeMapGenerator : MonoBehaviour
                         {
                             Direction.Up => currentPosition.x,
                             Direction.Down => currentPosition.x,
-                            Direction.Right => neighbor.chunkA.raw.x + neighbor.chunkA.raw.width - 1,
-                            Direction.Left => neighbor.chunkA.raw.x,
+                            Direction.Right => chunk.raw.x + chunk.raw.width - 1,
+                            Direction.Left => chunk.raw.x,
                             _ => throw new ArgumentOutOfRangeException()
                         },
                         d switch
                         {
-                            Direction.Up => neighbor.chunkA.raw.y,
-                            Direction.Down => neighbor.chunkA.raw.y + neighbor.chunkA.raw.height - 1,
+                            Direction.Up => chunk.raw.y,
+                            Direction.Down => chunk.raw.y + chunk.raw.height - 1,
                             Direction.Right => currentPosition.y,
                             Direction.Left => currentPosition.y,
                             _ => throw new ArgumentOutOfRangeException()
@@ -370,81 +373,75 @@ public class RogueLikeMapGenerator : MonoBehaviour
                     new (
                         id switch
                         {
-                            Direction.Left => neighbor.chunkB.room.x - 1,
-                            Direction.Right => neighbor.chunkB.room.x + neighbor.chunkB.room.width,
-                            _ => neighbor.chunkB.room.x + Random.Range(1, neighbor.chunkB.room.width - 1)
+                            Direction.Left => neighbor.chunk.room.x - 1,
+                            Direction.Right => neighbor.chunk.room.x + neighbor.chunk.room.width,
+                            _ => neighbor.chunk.room.x + Random.Range(1, neighbor.chunk.room.width - 1)
                         },
                         id switch
                         {
-                            Direction.Up => neighbor.chunkB.room.y  -1,
-                            Direction.Down => neighbor.chunkB.room.y + neighbor.chunkB.room.height,
-                            _ => neighbor.chunkB.room.y + Random.Range(1, neighbor.chunkB.room.height - 1)
+                            Direction.Up => neighbor.chunk.room.y  -1,
+                            Direction.Down => neighbor.chunk.room.y + neighbor.chunk.room.height,
+                            _ => neighbor.chunk.room.y + Random.Range(1, neighbor.chunk.room.height - 1)
                         }
                     )
                 };
-            var currentWayPointIndex = 0;
-            var currentWayPoint = wayPoints[currentWayPointIndex];
-            while (currentWayPointIndex < wayPoints.Count)
-            {
-                var canMove = true;
-                var isHorizontal = currentDirection == Direction.Left || currentDirection == Direction.Right;
-                var isVertical = currentDirection == Direction.Up || currentDirection == Direction.Down;
-                if (isHorizontal && currentPosition.x == currentWayPoint.x)
+                var currentWayPointIndex = 0;
+                var currentWayPoint = wayPoints[currentWayPointIndex];
+                while (currentWayPointIndex < wayPoints.Count)
                 {
-                    canMove = false;
-                }
-                else if (isVertical && currentPosition.y == currentWayPoint.y)
-                {
-                    canMove = false;
-                }
-
-                if (canMove)
-                {
-                    currentPosition += currentDirection switch
+                    var canMove = true;
+                    var isHorizontal = currentDirection == Direction.Left || currentDirection == Direction.Right;
+                    var isVertical = currentDirection == Direction.Up || currentDirection == Direction.Down;
+                    if (isHorizontal && currentPosition.x == currentWayPoint.x)
                     {
-                        Direction.Up => Vector2Int.down,
-                        Direction.Down => Vector2Int.up,
-                        Direction.Left => Vector2Int.left,
-                        Direction.Right => Vector2Int.right,
-                        _ => throw new ArgumentOutOfRangeException()
-                    };
-                }
-                if (currentPosition.x < 0 || currentPosition.x >= this.mapSize.x || currentPosition.y < 0 || currentPosition.y >= this.mapSize.y)
-                {
-                    Debug.LogException(new Exception("Out of Range"));
-                }
-                cells[currentPosition.y, currentPosition.x] = CellType.Ground;
-                if (isVertical && currentPosition.y == currentWayPoint.y)
-                {
-                    currentDirection = currentPosition.x < currentWayPoint.x ? Direction.Right : Direction.Left;
-                }
-                else if (isHorizontal && currentPosition.x == currentWayPoint.x)
-                {
-                    currentDirection = currentPosition.y < currentWayPoint.y ? Direction.Down : Direction.Up;
-                }
-
-                if (currentPosition == currentWayPoint)
-                {
-                    currentWayPointIndex++;
-                    if (currentWayPointIndex >= wayPoints.Count)
-                    {
-                        break;
+                        canMove = false;
                     }
-                    currentWayPoint = wayPoints[currentWayPointIndex];
-                    if (currentDirection == Direction.Up || currentDirection == Direction.Down)
+                    else if (isVertical && currentPosition.y == currentWayPoint.y)
                     {
-                        currentDirection = currentPosition.y < currentWayPoint.y ? Direction.Down : Direction.Up;
+                        canMove = false;
                     }
-                    else
+
+                    if (canMove)
+                    {
+                        currentPosition += currentDirection.ToVector2Int();
+                    }
+                    if (currentPosition.x < 0 || currentPosition.x >= this.mapSize.x || currentPosition.y < 0 || currentPosition.y >= this.mapSize.y)
+                    {
+                        Debug.LogException(new Exception("Out of Range"));
+                    }
+                    cells[currentPosition.y, currentPosition.x] = CellType.Ground;
+                    if (isVertical && currentPosition.y == currentWayPoint.y)
                     {
                         currentDirection = currentPosition.x < currentWayPoint.x ? Direction.Right : Direction.Left;
                     }
-                }
+                    else if (isHorizontal && currentPosition.x == currentWayPoint.x)
+                    {
+                        currentDirection = currentPosition.y < currentWayPoint.y ? Direction.Down : Direction.Up;
+                    }
 
-                if (this.isStepCorridorProcess)
-                {
-                    this.SetTexture();
-                    await UniTask.WaitWhile(() => !Keyboard.current[Key.Space].isPressed, cancellationToken: this.generateCancellationTokenSource.Token);
+                    if (currentPosition == currentWayPoint)
+                    {
+                        currentWayPointIndex++;
+                        if (currentWayPointIndex >= wayPoints.Count)
+                        {
+                            break;
+                        }
+                        currentWayPoint = wayPoints[currentWayPointIndex];
+                        if (currentDirection.IsVertical())
+                        {
+                            currentDirection = currentPosition.y < currentWayPoint.y ? Direction.Down : Direction.Up;
+                        }
+                        else
+                        {
+                            currentDirection = currentPosition.x < currentWayPoint.x ? Direction.Right : Direction.Left;
+                        }
+                    }
+
+                    if (this.isStepCorridorProcess)
+                    {
+                        this.SetTexture();
+                        await UniTask.WaitWhile(() => !Keyboard.current[Key.Space].isPressed, cancellationToken: this.generateCancellationTokenSource.Token);
+                    }
                 }
             }
         }
@@ -499,6 +496,11 @@ public class RogueLikeMapGenerator : MonoBehaviour
         this.texture.SetPixel(x, this.mapSize.y - y - 1, color);
     }
 
+    private Color GetPixel(int x, int y)
+    {
+        return this.texture.GetPixel(x, this.mapSize.y - y - 1);
+    }
+
     public enum CellType
     {
         Wall,
@@ -532,6 +534,11 @@ public class RogueLikeMapGenerator : MonoBehaviour
         /// 部屋の範囲
         /// </summary>
         public RectInt room;
+
+        /// <summary>
+        /// 隣接しているチャンクの情報
+        /// </summary>
+        public List<NeighborChunkData> neighborChunkDatas = new();
     }
 
     /// <summary>
@@ -539,16 +546,9 @@ public class RogueLikeMapGenerator : MonoBehaviour
     /// </summary>
     public class NeighborChunkData
     {
-        public Chunk chunkA;
+        public Chunk chunk;
 
-        public Chunk chunkB;
-
-        public Direction aToBDirection;
-
-        public bool IsMatch(Chunk chunkA, Chunk chunkB)
-        {
-            return (this.chunkA == chunkA && this.chunkB == chunkB) || (this.chunkA == chunkB && this.chunkB == chunkA);
-        }
+        public Direction direction;
     }
 }
 

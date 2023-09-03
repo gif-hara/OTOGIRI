@@ -560,17 +560,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755cdfa2d8f546209cb522a87dbb9743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: {x: 80, y: 80}
-  roomCountRange: {x: 7, y: 7}
+  mapSize: {x: 50, y: 50}
+  roomCountRange: {x: 6, y: 6}
   wallColor: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
   roomColor: {r: 0, g: 0.8892269, b: 1, a: 1}
   corridorColor: {r: 1, g: 1, b: 1, a: 1}
   chunkColor: {r: 1, g: 0.94375, b: 0, a: 1}
   searchNeighborChunkColor: {r: 1, g: 0, b: 1, a: 1}
-  searchNeighborChunkPointColor: {r: 1, g: 0, b: 1, a: 1}
+  searchNeighborChunkPointColor: {r: 1, g: 0.98879445, b: 0, a: 1}
   detectedNeighborChunkColor: {r: 1, g: 0, b: 0, a: 1}
-  splitRandomRange: 0
-  roomRandomRange: 0
+  splitRandomRange: 5
+  roomRandomRange: 3
   image: {fileID: 1585762752}
   isStepCorridorProcess: 0
   isStepNeighborChunkProcess: 0
