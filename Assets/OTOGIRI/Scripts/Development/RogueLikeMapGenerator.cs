@@ -390,8 +390,8 @@ public class RogueLikeMapGenerator : MonoBehaviour
                 while (currentWayPointIndex < wayPoints.Count)
                 {
                     var canMove = true;
-                    var isHorizontal = currentDirection == Direction.Left || currentDirection == Direction.Right;
-                    var isVertical = currentDirection == Direction.Up || currentDirection == Direction.Down;
+                    var isHorizontal = currentDirection.IsHorizontal();
+                    var isVertical = currentDirection.IsVertical();
                     if (isHorizontal && currentPosition.x == currentWayPoint.x)
                     {
                         canMove = false;
