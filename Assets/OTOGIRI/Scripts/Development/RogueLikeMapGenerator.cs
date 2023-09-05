@@ -6,7 +6,6 @@ using Cysharp.Threading.Tasks;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
-using Unity.VisualScripting;
 
 public class RogueLikeMapGenerator : MonoBehaviour
 {
@@ -65,6 +64,8 @@ public class RogueLikeMapGenerator : MonoBehaviour
     /// 作成した部屋のリスト
     /// </summary>
     private readonly List<RectInt> rooms = new();
+
+    private CorridorInfo corridorInfo;
 
     /// <summary>
     /// ダンジョンデータを描画するテクスチャ
@@ -137,6 +138,7 @@ public class RogueLikeMapGenerator : MonoBehaviour
                 raw = new RectInt(0, 0, this.mapSize.x, this.mapSize.y),
             }
         };
+        this.corridorInfo = new CorridorInfo();
 
         var roomCount = Random.Range(this.roomCountRange.x, this.roomCountRange.y + 1);
         for (var i = 0; i < roomCount - 1; i++)
@@ -183,10 +185,10 @@ public class RogueLikeMapGenerator : MonoBehaviour
             var xRange = Random.Range(0, this.roomRandomRange);
             var yRange = Random.Range(0, this.roomRandomRange);
             chunk.room = new RectInt(
-                chunk.raw.x + 3 + xRange,
-                chunk.raw.y + 3 + yRange,
-                chunk.raw.width - 6 - xRange * 2 - Random.Range(0, this.roomRandomRange),
-                chunk.raw.height - 6 - yRange * 2 - Random.Range(0, this.roomRandomRange)
+                chunk.raw.x + 2 + xRange,
+                chunk.raw.y + 2 + yRange,
+                chunk.raw.width - 4 - xRange * 2 - Random.Range(0, this.roomRandomRange),
+                chunk.raw.height - 4 - yRange * 2 - Random.Range(0, this.roomRandomRange)
             );
         }
 
@@ -326,11 +328,34 @@ public class RogueLikeMapGenerator : MonoBehaviour
             }
         }
 
+        // 廊下を間引く
+        foreach (var chunk in this.chunks)
+        {
+            Debug.Log(chunk.neighborChunkDatas.Count);
+            if (chunk.neighborChunkDatas.Count <= 1)
+            {
+                continue;
+            }
+            // 隣接するチャンクを減らす数をランダムに決める
+            // var removeCount = Random.Range(0, chunk.neighborChunkDatas.Count);
+            var removeCount = chunk.neighborChunkDatas.Count;
+            for (var i = 0; i < removeCount; i++)
+            {
+                var randomNeighborChunkData = chunk.neighborChunkDatas[Random.Range(0, chunk.neighborChunkDatas.Count)];
+                if (randomNeighborChunkData.chunk.neighborChunkDatas.Count <= 1)
+                {
+                    continue;
+                }
+                chunk.neighborChunkDatas.Remove(randomNeighborChunkData);
+            }
+        }
+
         // 廊下を作る
         foreach (var chunk in this.chunks)
         {
             foreach (var neighbor in chunk.neighborChunkDatas)
             {
+                var corridors = new List<Vector2Int>();
                 var d = neighbor.direction;
                 var id = d.Inverse();
                 var start = new Vector2Int(
@@ -409,7 +434,15 @@ public class RogueLikeMapGenerator : MonoBehaviour
                     {
                         Debug.LogException(new Exception("Out of Range"));
                     }
-                    cells[currentPosition.y, currentPosition.x] = CellType.Ground;
+                    corridors.Add(currentPosition);
+                    if (!this.corridorInfo.heatMap.ContainsKey(currentPosition))
+                    {
+                        this.corridorInfo.heatMap.Add(currentPosition, 0);
+                    }
+                    else
+                    {
+                        this.corridorInfo.heatMap[currentPosition] += 1;
+                    }
                     if (isVertical && currentPosition.y == currentWayPoint.y)
                     {
                         currentDirection = currentPosition.x < currentWayPoint.x ? Direction.Right : Direction.Left;
@@ -443,6 +476,14 @@ public class RogueLikeMapGenerator : MonoBehaviour
                         await UniTask.WaitWhile(() => !Keyboard.current[Key.Space].isPressed, cancellationToken: this.generateCancellationTokenSource.Token);
                     }
                 }
+                this.corridorInfo.corridors.Add(corridors);
+            }
+        }
+        foreach (var corridor in this.corridorInfo.corridors)
+        {
+            foreach (var point in corridor)
+            {
+                this.cells[point.y, point.x] = CellType.Ground;
             }
         }
         this.SetTexture();
@@ -550,6 +591,13 @@ public class RogueLikeMapGenerator : MonoBehaviour
 
         public Direction direction;
     }
+
+    public class CorridorInfo
+    {
+        public List<List<Vector2Int>> corridors = new();
+
+        public Dictionary<Vector2Int, int> heatMap = new();
+    }
 }
 
 public enum Direction
@@ -558,12 +606,6 @@ public enum Direction
     Down,
     Left,
     Right,
-}
-
-public enum Axis
-{
-    Horizontal,
-    Vertical,
 }
 
 public static class Extensions
@@ -593,24 +635,5 @@ public static class Extensions
         Direction.Right => Direction.Left,
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
     };
-
-    public static Direction RandomDirection(this Axis axis)
-    {
-        return axis == Axis.Horizontal ? Random.Range(0, 2) == 0 ? Direction.Left : Direction.Right : Random.Range(0, 2) == 0 ? Direction.Up : Direction.Down;
-    }
-
-    public static void Raycast(this Vector2Int position, Direction direction, int max, Func<Vector2Int, bool> predicate)
-    {
-        var i = direction.IsHorizontal() ? position.x : position.y;
-        while (i >= 0 && i <= max)
-        {
-            var currentPosition = direction.IsHorizontal() ? new Vector2Int(i, position.y) : new Vector2Int(position.x, i);
-            if (predicate(currentPosition))
-            {
-                break;
-            }
-            i += direction.IsPositive() ? 1 : -1;
-        }
-    }
 }
 
