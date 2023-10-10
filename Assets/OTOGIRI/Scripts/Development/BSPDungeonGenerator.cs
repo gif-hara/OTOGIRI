@@ -1,31 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.InputSystem;
 
 public class BSPDungeonGenerator : MonoBehaviour
 {
-    [SerializeField]
-    private RawImage dungeonImage;
-
+    [SerializeField] private RawImage dungeonImage;
+    
     [Header("Colors")]
-    [SerializeField]
-    private Color wallColor = Color.black;
-    [SerializeField]
-    private Color roomColor = Color.white;
-    [SerializeField]
-    private Color corridorColor = Color.gray;
+    [SerializeField] private Color wallColor = Color.black;
+    [SerializeField] private Color roomColor = Color.white;
+    [SerializeField] private Color corridorColor = Color.gray;
 
     [Header("Sizes")]
-    [SerializeField]
-    private Vector2Int dungeonSize = new Vector2Int(100, 100);
-
+    [SerializeField] private Vector2Int roomSize = new Vector2Int(6, 12);
+    [SerializeField] private Vector2Int dungeonSize = new Vector2Int(100, 100);
+    
     [Header("Split Settings")]
-    [SerializeField]
-    private int maxSplitDepth = 4; // 分割の最大回数
-
-    [SerializeField]
-    private int splitRandomRange = 10;
+    [SerializeField] private int maxSplitDepth = 4; // 分割の最大回数
 
     private Texture2D dungeonTexture;
 
@@ -34,22 +25,12 @@ public class BSPDungeonGenerator : MonoBehaviour
         Generate(dungeonSize.x, dungeonSize.y);
     }
 
-    private void Update()
-    {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            Generate(dungeonSize.x, dungeonSize.y);
-        }
-    }
-
     public BSPTree Generate(int width, int height)
     {
-        dungeonTexture = new Texture2D(width, height)
-        {
-            filterMode = FilterMode.Point,
-            wrapMode = TextureWrapMode.Clamp
-        };
-
+        dungeonTexture = new Texture2D(width, height);
+        dungeonTexture.filterMode = FilterMode.Point;
+        dungeonTexture.wrapMode = TextureWrapMode.Clamp;
+        
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -58,10 +39,8 @@ public class BSPDungeonGenerator : MonoBehaviour
             }
         }
 
-        BSPTree root = Split(null, new RectInt(0, 0, width, height));
+        BSPTree root = Split(new RectInt(0, 0, width, height));
         CreateRooms(root);
-        ConnectRooms(root);
-        DrawCorridors(root);
         DrawRooms(root);
 
         dungeonTexture.Apply();
@@ -70,13 +49,9 @@ public class BSPDungeonGenerator : MonoBehaviour
         return root;
     }
 
-    private BSPTree Split(BSPTree parent, RectInt area, int depth = 0)
+    private BSPTree Split(RectInt area, int depth = 0) // 現在の深さを追加
     {
-        BSPTree node = new()
-        {
-            Parent = parent,
-            Room = area
-        };
+        BSPTree node = new BSPTree { Room = area };
 
         // 既に深さが最大値に達している場合、分割を終了
         if (depth >= maxSplitDepth)
@@ -84,26 +59,29 @@ public class BSPDungeonGenerator : MonoBehaviour
 
         bool splitH = Random.value > 0.5f;
 
-        if (area.width > area.height && (float)area.width / area.height >= 1.5)
+        if (area.width > area.height && area.width / area.height >= 1.5)
             splitH = false;
-        else if (area.height > area.width && (float)area.height / area.width >= 1.5)
+        else if (area.height > area.width && area.height / area.width >= 1.5)
             splitH = true;
 
-        int max = (splitH ? area.height : area.width) / 2;
-        int split = Random.Range(max - this.splitRandomRange, max + this.splitRandomRange);
+        int max = (splitH ? area.height : area.width) - roomSize.x;
+        if (max <= roomSize.x)
+            return node;
+
+        int split = Random.Range(roomSize.x, max);
         node.splitIndex = split;
         node.isSplitHorizontal = splitH;
 
         // 子ノードの分割時には現在の深さを+1して渡す
         if (splitH)
         {
-            node.LeftChild = Split(node, new RectInt(area.x, area.y, area.width, split), ++depth);
-            node.RightChild = Split(node, new RectInt(area.x, area.y + split, area.width, area.height - split), ++depth);
+            node.LeftChild = Split(new RectInt(area.x, area.y, area.width, split), depth + 1);
+            node.RightChild = Split(new RectInt(area.x, area.y + split, area.width, area.height - split), depth + 1);
         }
         else
         {
-            node.LeftChild = Split(node, new RectInt(area.x, area.y, split, area.height), ++depth);
-            node.RightChild = Split(node, new RectInt(area.x + split, area.y, area.width - split, area.height), ++depth);
+            node.LeftChild = Split(new RectInt(area.x, area.y, split, area.height), depth + 1);
+            node.RightChild = Split(new RectInt(area.x + split, area.y, area.width - split, area.height), depth + 1);
         }
 
         return node;
@@ -112,93 +90,82 @@ public class BSPDungeonGenerator : MonoBehaviour
     private void CreateRooms(BSPTree node)
     {
         if (node == null)
-        {
             return;
-        }
 
-        if (node.LeftChild != null || node.RightChild != null)
+        RectInt room = node.Room;
+
+        if (node.LeftChild == null && node.RightChild == null)
         {
-            // First, recurse and create rooms for children.
+            int roomWidth = Random.Range(roomSize.x, Mathf.Min(room.width, roomSize.y));
+            int roomHeight = Random.Range(roomSize.x, Mathf.Min(room.height, roomSize.y));
+            int roomX = Random.Range(room.x, room.x + room.width - roomWidth);
+            int roomY = Random.Range(room.y, room.y + room.height - roomHeight);
+            node.Room = new RectInt(roomX, roomY, roomWidth, roomHeight);
+        }
+        else
+        {
             CreateRooms(node.LeftChild);
             CreateRooms(node.RightChild);
+            if (node.LeftChild != null && node.RightChild != null)
+            {
+                ConnectRooms(node);
+            }
         }
-
-        RectInt r = node.Room;
-        node.Room = new RectInt(r.x + 3, r.y + 3, r.width - 6, r.height - 6);
     }
 
     private void ConnectRooms(BSPTree node)
     {
-        if (node == null)
+        if (node.LeftChild != null && node.RightChild != null)
         {
-            return;
-        }
-
-        ConnectRooms(node.LeftChild, node.RightChild, node.splitIndex, node.isSplitHorizontal, node.Corridors);
-        // if (node.Parent != null)
-        // {
-        //     ConnectRooms(node.Parent, node.Parent.LeftChild, node.splitIndex, node.isSplitHorizontal, node.Corridors);
-        //     ConnectRooms(node.Parent, node.Parent.RightChild, node.splitIndex, node.isSplitHorizontal, node.Corridors);
-        // }
-        if (node.LeftChild != null) ConnectRooms(node.LeftChild);
-        if (node.RightChild != null) ConnectRooms(node.RightChild);
-    }
-
-    private void ConnectRooms(BSPTree left, BSPTree right, int splitIndex, bool isSplitHorizontal, List<RectInt> corridors)
-    {
-        if (left == null || right == null)
-        {
-            return;
-        }
-
-        Vector2Int leftCenter = left.GetCenter();
-        Vector2Int rightCenter = right.GetCenter();
-        if (isSplitHorizontal)
-        {
-            var leftX = leftCenter.x;
-            corridors.Add(new RectInt(
-                leftX,
-                leftCenter.y > splitIndex ? splitIndex : leftCenter.y,
-                1,
-                Mathf.Abs(splitIndex - leftCenter.y) + 1
-                ));
-            var rightX = rightCenter.x;
-            corridors.Add(new RectInt(
-                rightX,
-                rightCenter.y > splitIndex ? splitIndex : rightCenter.y,
-                1,
-                Mathf.Abs(splitIndex - rightCenter.y) + 1
-                ));
-            corridors.Add(new RectInt(
-                    leftX > rightX ? rightX : leftX,
-                    splitIndex,
-                    Mathf.Abs(leftX - rightX) + 1,
+            Debug.Log($"splitIndex: {node.splitIndex}, isSplitHorizontal: {node.isSplitHorizontal}");
+            Vector2Int leftCenter = node.LeftChild.GetCenter();
+            Vector2Int rightCenter = node.RightChild.GetCenter();
+            if (node.isSplitHorizontal)
+            {
+                node.Corridors.Add(new RectInt(
+                    leftCenter.x,
+                    leftCenter.y > node.splitIndex ? node.splitIndex : leftCenter.y,
+                    1,
+                    Mathf.Abs(node.splitIndex - leftCenter.y)
+                    ));
+                node.Corridors.Add(new RectInt(
+                    rightCenter.x,
+                    rightCenter.y > node.splitIndex ? node.splitIndex : rightCenter.y,
+                    1,
+                    Mathf.Abs(node.splitIndex - rightCenter.y)
+                    ));
+                node.Corridors.Add(new RectInt(
+                        leftCenter.x > rightCenter.x ? rightCenter.x : leftCenter.x,
+                        node.splitIndex,
+                        Mathf.Abs(leftCenter.x - rightCenter.x),
+                        1
+                        ));
+            }
+            else
+            {
+                node.Corridors.Add(new RectInt(
+                    leftCenter.x > node.splitIndex ? node.splitIndex : leftCenter.x,
+                    leftCenter.y,
+                    Mathf.Abs(node.splitIndex - leftCenter.x),
                     1
                     ));
-        }
-        else
-        {
-            var leftY = leftCenter.y;
-            corridors.Add(new RectInt(
-                leftCenter.x > splitIndex ? splitIndex : leftCenter.x,
-                leftY,
-                Mathf.Abs(splitIndex - leftCenter.x) + 1,
-                1
-                ));
-            var rightY = rightCenter.y;
-            corridors.Add(new RectInt(
-                rightCenter.x > splitIndex ? splitIndex : rightCenter.x,
-                rightY,
-                Mathf.Abs(splitIndex - rightCenter.x) + 1,
-                1
-                ));
-            corridors.Add(new RectInt(
-                    splitIndex,
-                    leftY > rightY ? rightY : leftY,
-                    1,
-                    Mathf.Abs(leftY - rightY) + 1
+                node.Corridors.Add(new RectInt(
+                    rightCenter.x > node.splitIndex ? node.splitIndex : rightCenter.x,
+                    rightCenter.y,
+                    Mathf.Abs(node.splitIndex - rightCenter.x),
+                    1
                     ));
+                node.Corridors.Add(new RectInt(
+                        node.splitIndex,
+                        leftCenter.y > rightCenter.y ? rightCenter.y : leftCenter.y,
+                        1,
+                        Mathf.Abs(leftCenter.y - rightCenter.y)
+                        ));
+            }
         }
+
+        if (node.LeftChild != null) ConnectRooms(node.LeftChild);
+        if (node.RightChild != null) ConnectRooms(node.RightChild);
     }
 
     private void DrawRooms(BSPTree node)
@@ -217,46 +184,32 @@ public class BSPDungeonGenerator : MonoBehaviour
         }
         else
         {
+            foreach (var corridor in node.Corridors)
+            {
+                for (int x = corridor.x; x < corridor.x + corridor.width; x++)
+                {
+                    for (int y = corridor.y; y < corridor.y + corridor.height; y++)
+                    {
+                        dungeonTexture.SetPixel(x, y, corridorColor);
+                    }
+                }
+            }
+
             DrawRooms(node.LeftChild);
             DrawRooms(node.RightChild);
         }
-    }
-
-    private void DrawCorridors(BSPTree node)
-    {
-        if (node == null) return;
-
-        if (node.LeftChild == null && node.RightChild == null)
-        {
-            return;
-        }
-
-        foreach (var corridor in node.Corridors)
-        {
-            for (int x = corridor.x; x < corridor.x + corridor.width; x++)
-            {
-                for (int y = corridor.y; y < corridor.y + corridor.height; y++)
-                {
-                    dungeonTexture.SetPixel(x, y, corridorColor);
-                }
-            }
-        }
-
-        DrawCorridors(node.LeftChild);
-        DrawCorridors(node.RightChild);
     }
 }
 
 public class BSPTree
 {
-    public BSPTree Parent;
     public RectInt Room;
     public List<RectInt> Corridors = new List<RectInt>();
     public BSPTree LeftChild;
     public BSPTree RightChild;
     public int splitIndex = -1;
     public bool isSplitHorizontal;
-
+    
     public Vector2Int GetCenter()
     {
         return new Vector2Int(Room.x + Room.width / 2, Room.y + Room.height / 2);

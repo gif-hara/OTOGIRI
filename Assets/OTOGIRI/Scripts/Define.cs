@@ -2,24 +2,41 @@
 {
     public static class Define
     {
-        /// <summary>
-        /// マップのセルの種類
-        /// </summary>
-        public enum CellType
+        public enum ActorBehaviourType
         {
-            Abyss = -2,
-            Waterway = -1,
-            Ground = 0,
-            Step = 1,
-            Wall = 2,
+            Move,
+            Action
         }
-        
+
+        public enum ActorBehaviourResult
+        {
+            Success,
+            Abort,
+        }
+
+        public enum ActorState
+        {
+            Idle,
+            Move,
+            Action,
+        }
+
         public enum Direction
         {
             Up,
-            Down,
-            Left,
+            UpRight,
             Right,
+            DownRight,
+            Down,
+            DownLeft,
+            Left,
+            UpLeft,
+        }
+
+        public enum CellType
+        {
+            Ground,
+            Wall,
         }
     }
 }
