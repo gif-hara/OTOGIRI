@@ -6,17 +6,15 @@ namespace OTOGIRI.ActorControllers.AISystems
 {
     public class Random : IActorAI
     {
-        public UniTask ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken)
+        public UniTask<IActorBehaviour> ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken)
         {
             if (UnityEngine.Random.value > 0.5f)
             {
-                actorModel.NextBehaviour = new Move(1, Define.Direction.Up);
-                return UniTask.CompletedTask;
+                return UniTask.FromResult<IActorBehaviour>(new Move(1, Define.Direction.Up));
             }
             else
             {
-                actorModel.NextBehaviour = new Attack(1);
-                return UniTask.CompletedTask;
+                return UniTask.FromResult<IActorBehaviour>(new Attack(1));
             }
         }
     }

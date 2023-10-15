@@ -12,7 +12,6 @@ namespace OTOGIRI.ActorControllers.Behaviours
 
         public override void Execute(ActorModel actorModel, DungeonModel dungeonModel)
         {
-            actorModel.MovedRoutes.Add(this.direction);
             actorModel.Position += this.direction.ToVector2Int();
         }
     }

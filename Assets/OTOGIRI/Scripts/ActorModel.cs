@@ -1,26 +1,30 @@
-using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using OTOGIRI.ActorControllers.AISystems;
-using OTOGIRI.ActorControllers.Behaviours;
 using UnityEngine;
 
 namespace OTOGIRI.ActorControllers
 {
+    /// <summary>
+    /// アクターのモデル
+    /// </summary>
     public class ActorModel
     {
-        public string Name { get; }
-        
-        public Vector2Int Position { get; set; }
-        
         /// <summary>
-        /// ターン中に移動したルートのリスト
+        /// アクターの名前を取得します。
         /// </summary>
-        public List<Define.Direction> MovedRoutes { get; } = new();
-        
+        public string Name { get; }
+
+        /// <summary>
+        /// アクターの位置を取得または設定します。
+        /// </summary>
+        public Vector2Int Position { get; set; }
+
+        /// <summary>
+        /// アクターのAIを取得または設定します。
+        /// </summary>
         public IActorAI AI { get; set; }
 
         /// <summary>
-        /// 行動力
+        /// アクターの行動力を取得または設定します。
         /// </summary>
         /// <remarks>
         /// この値が0になると行動できなくなる
@@ -31,35 +35,15 @@ namespace OTOGIRI.ActorControllers
         public int ActionPoint { get; set; }
 
         /// <summary>
-        /// 回復する行動力
+        /// アクターの回復行動力を取得または設定します。
         /// </summary>
         public int RecoveryActionPoint { get; set; } = 1;
-        
-        public bool IsBusy { get; set; }
-        
-        public IActorBehaviour NextBehaviour { get; set; }
-        
-        /// <summary>
-        /// アクションを実行したかどうか
-        /// </summary>
-        public bool HasPerformedAction { get; set; }
-        
-        public ActorModel(string name, IActorAI ai)
+
+        public ActorModel(string name, IActorAI ai, Vector2Int initialPosition)
         {
-            this.Name = name;
-            this.AI = ai;
-        }
-        
-        /// <summary>
-        /// アイドル状態になるまで待機する
-        /// </summary>
-        public UniTask WaitUntilIdleAsync()
-        {
-            if (!this.IsBusy)
-            {
-                return UniTask.CompletedTask;
-            }
-            return UniTask.WaitUntil(() => !this.IsBusy);
+            Name = name;
+            AI = ai;
+            Position = initialPosition;
         }
     }
 }

@@ -13,18 +13,14 @@ namespace OTOGIRI.ActorControllers.BehaviourInvokers
             if (behaviour.BehaviourType == Define.ActorBehaviourType.Move)
             {
                 Debug.Log($"{actorModel.Name}: Move");
-                actorModel.IsBusy = true;
                 behaviour.Execute(actorModel, dungeonModel);
                 await UniTask.Delay(TimeSpan.FromSeconds(1.0f), cancellationToken: cancellationToken);
-                actorModel.IsBusy = false;
             }
             else
             {
                 Debug.Log($"{actorModel.Name}: Action");
-                actorModel.IsBusy = true;
                 behaviour.Execute(actorModel, dungeonModel);
                 await UniTask.Delay(TimeSpan.FromSeconds(1.0f), cancellationToken: cancellationToken);
-                actorModel.IsBusy = false;
             }
         }
     }

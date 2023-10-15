@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using OTOGIRI.ActorControllers.Behaviours;
 
 namespace OTOGIRI.ActorControllers.AISystems
 {
@@ -8,6 +9,6 @@ namespace OTOGIRI.ActorControllers.AISystems
         /// <summary>
         /// ターンの行動を決定する
         /// </summary>
-        UniTask ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken);
+        UniTask<IActorBehaviour> ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken);
     }
 }

@@ -9,9 +9,10 @@ namespace OTOGIRI.ActorControllers.AISystems
 {
     public class Input : IActorAI
     {
-        public async UniTask ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken)
+        public UniTask<IActorBehaviour> ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken)
         {
-            var completionSource = new UniTaskCompletionSource();
+            Debug.Log("Input");
+            var completionSource = new UniTaskCompletionSource<IActorBehaviour>();
             AsyncTriggerGameObject.GetAsyncUpdateTrigger()
                 .Subscribe(_ =>
                 {
@@ -24,18 +25,16 @@ namespace OTOGIRI.ActorControllers.AISystems
 
                     if (vector != Vector2Int.zero)
                     {
-                        actorModel.NextBehaviour = new Move(1, vector.ToDirection());
-                        completionSource.TrySetResult();
+                        completionSource.TrySetResult(new Move(1, vector.ToDirection()));
                     }
                     else if (k.spaceKey.isPressed)
                     {
-                        actorModel.NextBehaviour = new Attack(1);
-                        completionSource.TrySetResult();
+                        completionSource.TrySetResult(new Attack(1));
                     }
                 })
                 .AddTo(cancellationToken);
-            
-            await completionSource.Task;
+
+            return completionSource.Task;
         }
     }
 }
