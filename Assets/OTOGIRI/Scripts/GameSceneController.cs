@@ -34,7 +34,6 @@ namespace OTOGIRI.SceneControllers
 
                 var actorBehaviourInvoker = new ActorControllers.BehaviourInvokers.Log();
 
-                // 外部からキャンセル可能なループに変更
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     // すべてのActorのターン処理を行う
