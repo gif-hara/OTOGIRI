@@ -39,7 +39,6 @@ namespace OTOGIRI.SceneControllers
                     // すべてのActorのターン処理を行う
                     foreach (var model in dungeonModel.AllModels)
                     {
-                        // usingブロックで囲むことで適切に破棄される
                         using (var actorScope = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                         {
                             var actorBehaviour = await model.AI.ThinkAsync(model, actorScope.Token);

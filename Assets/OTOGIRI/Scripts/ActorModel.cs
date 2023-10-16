@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using OTOGIRI.ActorControllers.AISystems;
 using UnityEngine;
 
@@ -16,7 +17,21 @@ namespace OTOGIRI.ActorControllers
         /// <summary>
         /// アクターの位置を取得または設定します。
         /// </summary>
-        public Vector2Int Position { get; set; }
+        public Vector2Int Position
+        {
+            set => position.Value = value;
+            get => position.Value;
+        }
+
+        /// <summary>
+        /// アクターの位置プロパティを取得します。
+        /// </summary>
+        public IReadOnlyAsyncReactiveProperty<Vector2Int> PositionAsReactiveProperty() => position;
+
+        /// <summary>
+        /// アクターの位置を設定します。
+        /// </summary>
+        private AsyncReactiveProperty<Vector2Int> position = new AsyncReactiveProperty<Vector2Int>(Vector2Int.zero);
 
         /// <summary>
         /// アクターのAIを取得または設定します。
