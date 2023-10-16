@@ -1,3 +1,5 @@
+using OTOGIRI.GameSystems;
+
 namespace OTOGIRI.ActorControllers.Behaviours
 {
     public class Move : ActorBehaviour
@@ -10,7 +12,7 @@ namespace OTOGIRI.ActorControllers.Behaviours
             this.direction = direction;
         }
 
-        public override void Execute(ActorModel actorModel, DungeonModel dungeonModel)
+        public override void Execute(ActorModel actorModel, GameModel gameModel)
         {
             actorModel.Position += this.direction.ToVector2Int();
         }

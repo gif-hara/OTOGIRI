@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using OTOGIRI.ActorControllers;
+using OTOGIRI.GameSystems;
 using UnityEngine;
 
 namespace OTOGIRI.SceneControllers
@@ -18,16 +19,16 @@ namespace OTOGIRI.SceneControllers
         {
             try
             {
-                var dungeonModel = new DungeonModel();
+                var gameModel = new GameModel();
                 var playerModel = new ActorModel(
                     "Player", new ActorControllers.AISystems.Input(), new Vector2Int(0, 0)
                     );
-                dungeonModel.SetPlayerModel(playerModel);
+                gameModel.AddActorModel(playerModel);
 
                 // 敵の生成をループで行う
                 for (int i = 1; i <= 3; i++)
                 {
-                    dungeonModel.AddOtherModel(
+                    gameModel.AddActorModel(
                         new ActorModel($"Enemy{i}", new ActorControllers.AISystems.Random(), new Vector2Int(0, 0))
                         );
                 }
@@ -37,7 +38,7 @@ namespace OTOGIRI.SceneControllers
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     // すべてのActorのターン処理を行う
-                    foreach (var model in dungeonModel.AllModels)
+                    foreach (var model in gameModel.ActorModels)
                     {
                         using (var actorScope = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                         {
@@ -46,7 +47,7 @@ namespace OTOGIRI.SceneControllers
                             await actorBehaviourInvoker.InvokeAsync(
                                 model,
                                 actorBehaviour,
-                                dungeonModel,
+                                gameModel,
                                 cancellationToken
                                 );
                         }

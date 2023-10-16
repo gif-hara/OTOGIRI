@@ -1,3 +1,5 @@
+using OTOGIRI.GameSystems;
+
 namespace OTOGIRI.ActorControllers.Behaviours
 {
     public interface IActorBehaviour
@@ -5,7 +7,7 @@ namespace OTOGIRI.ActorControllers.Behaviours
         Define.ActorBehaviourType BehaviourType { get; }
 
         int ConsumeActionPoint { get; }
-        
-        void Execute(ActorModel actorModel, DungeonModel dungeonModel);
+
+        void Execute(ActorModel actorModel, GameModel gameModel);
     }
 }

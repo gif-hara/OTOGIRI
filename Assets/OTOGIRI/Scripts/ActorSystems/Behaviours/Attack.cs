@@ -1,3 +1,4 @@
+using OTOGIRI.GameSystems;
 using UnityEngine;
 
 namespace OTOGIRI.ActorControllers.Behaviours
@@ -8,8 +9,8 @@ namespace OTOGIRI.ActorControllers.Behaviours
             : base(Define.ActorBehaviourType.Action, consumeActionPoint)
         {
         }
-        
-        public override void Execute(ActorModel actorModel, DungeonModel dungeonModel)
+
+        public override void Execute(ActorModel actorModel, GameModel gameModel)
         {
             // TODO: Implement attack logic
             Debug.Log($"{actorModel.Name}: Attack");
