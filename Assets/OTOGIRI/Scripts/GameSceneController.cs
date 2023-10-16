@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using OTOGIRI.ActorControllers;
 using OTOGIRI.ActorControllers.Behaviours;
 using UnityEngine;
 
-namespace OTOGIRI.ActorControllers
+namespace OTOGIRI.SceneControllers
 {
     public class GameSceneController : MonoBehaviour
     {
@@ -20,17 +21,20 @@ namespace OTOGIRI.ActorControllers
             try
             {
                 var dungeonModel = new DungeonModel();
-                var playerModel = new ActorModel("Player", new AISystems.Input(), new Vector2Int(0, 0));
+                var playerModel = new ActorModel(
+                    "Player", new ActorControllers.AISystems.Input(), new Vector2Int(0, 0)
+                    );
                 dungeonModel.SetPlayerModel(playerModel);
 
                 // 敵の生成をループで行う
                 for (int i = 1; i <= 3; i++)
                 {
-                    dungeonModel.AddOtherModel(new ActorModel($"Enemy{i}", new AISystems.Random(), new Vector2Int(0, 0)));
+                    dungeonModel.AddOtherModel(
+                        new ActorModel($"Enemy{i}", new ActorControllers.AISystems.Random(), new Vector2Int(0, 0))
+                        );
                 }
 
-                var actionBehaviours = new List<(ActorModel model, IActorBehaviour behaviour)>();
-                var actorBehaviourInvoker = new BehaviourInvokers.Log();
+                var actorBehaviourInvoker = new ActorControllers.BehaviourInvokers.Log();
 
                 // 外部からキャンセル可能なループに変更
                 while (!cancellationToken.IsCancellationRequested)
@@ -43,7 +47,12 @@ namespace OTOGIRI.ActorControllers
                         {
                             var actorBehaviour = await model.AI.ThinkAsync(model, actorScope.Token);
                             actorScope.Cancel();
-                            await actorBehaviourInvoker.InvokeAsync(model, actorBehaviour, dungeonModel, cancellationToken);
+                            await actorBehaviourInvoker.InvokeAsync(
+                                model,
+                                actorBehaviour,
+                                dungeonModel,
+                                cancellationToken
+                                );
                         }
                     }
                 }
