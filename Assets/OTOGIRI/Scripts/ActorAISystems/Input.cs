@@ -11,7 +11,6 @@ namespace OTOGIRI.ActorControllers.AISystems
     {
         public UniTask<IActorBehaviour> ThinkAsync(ActorModel actorModel, CancellationToken cancellationToken)
         {
-            Debug.Log("Input");
             var completionSource = new UniTaskCompletionSource<IActorBehaviour>();
             AsyncTriggerGameObject.GetAsyncUpdateTrigger()
                 .Subscribe(_ =>
