@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace OTOGIRI.ActorControllers
 {
-    public class GameController : MonoBehaviour
+    public class GameSceneController : MonoBehaviour
     {
         private void Start()
         {
