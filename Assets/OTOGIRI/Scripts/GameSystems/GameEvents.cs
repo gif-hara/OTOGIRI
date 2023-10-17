@@ -24,8 +24,8 @@ namespace OTOGIRI.GameSystems
 
         public static void RegisterEvents(BuiltinContainerBuilder builder)
         {
-            builder.AddMessageBroker<AddedActorModel>();
-            builder.AddMessageBroker<RemovedActorModel>();
+            builder.AddMessageBroker<IActorModelHolder, AddedActorModel>();
+            builder.AddMessageBroker<IActorModelHolder, RemovedActorModel>();
         }
     }
 }

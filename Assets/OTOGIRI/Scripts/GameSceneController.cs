@@ -17,9 +17,10 @@ namespace OTOGIRI.SceneControllers
 
         private static async UniTask BeginGameLoopAsync(CancellationToken cancellationToken)
         {
+            var gameModel = new GameModel();
+            using var gameView = new GameView(gameModel);
             try
             {
-                var gameModel = new GameModel();
                 gameModel.AddActorModel(
                     new ActorModel("Player", new ActorControllers.AISystems.Input(), new Vector2Int(0, 0))
                 );

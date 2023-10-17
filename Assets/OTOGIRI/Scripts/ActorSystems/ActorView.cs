@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
@@ -7,16 +6,24 @@ using UnityEngine;
 
 namespace OTOGIRI.ActorControllers
 {
-    public class ActorView
+    public class ActorView : IDisposable
     {
-        public ActorView(ActorModel actorModel, CancellationToken cancellationToken)
+        private readonly CancellationTokenSource cancellationTokenSource = new();
+
+        public ActorView(ActorModel actorModel)
         {
             actorModel.PositionAsReactiveProperty()
                 .Subscribe(position =>
                 {
                     Debug.Log($"{actorModel.Name}: {position}");
                 })
-                .AddTo(cancellationToken);
+                .AddTo(cancellationTokenSource.Token);
+        }
+
+        public void Dispose()
+        {
+            this.cancellationTokenSource.Cancel();
+            this.cancellationTokenSource.Dispose();
         }
     }
 }

@@ -1,0 +1,9 @@
+namespace OTOGIRI
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public sealed class #SCRIPTNAME#
+    {
+    }
+}

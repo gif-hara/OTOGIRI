@@ -6,7 +6,7 @@ namespace OTOGIRI.GameSystems
     /// <summary>
     /// ゲームの主要なデータを管理するクラス
     /// </summary>
-    public class GameModel
+    public class GameModel : IActorModelHolder
     {
         /// <summary>
         /// ダンジョンモデルのインスタンスを取得します。
@@ -26,13 +26,13 @@ namespace OTOGIRI.GameSystems
         public void AddActorModel(ActorModel model)
         {
             this.actorModels.Add(model);
-            GameEvents.AddedActorModel.Publish(model);
+            GameEvents.AddedActorModel.PublishWithKey((IActorModelHolder)this, model);
         }
 
         public void RemoveActorModel(ActorModel model)
         {
             this.actorModels.Remove(model);
-            GameEvents.RemovedActorModel.Publish(model);
+            GameEvents.RemovedActorModel.PublishWithKey((IActorModelHolder)this, model);
         }
     }
 }
