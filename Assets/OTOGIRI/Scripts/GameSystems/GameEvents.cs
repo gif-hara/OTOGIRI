@@ -14,6 +14,9 @@ namespace OTOGIRI.GameSystems
             public ActorModel ActorModel => this.Param1;
         }
 
+        /// <summary>
+        /// アクターが削除された時のメッセージ
+        /// </summary>
         public class RemovedActorModel : Message<RemovedActorModel, ActorModel>
         {
             public ActorModel ActorModel => this.Param1;
