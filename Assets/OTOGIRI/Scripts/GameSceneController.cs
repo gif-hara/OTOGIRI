@@ -23,8 +23,6 @@ namespace OTOGIRI.SceneControllers
                 gameModel.AddActorModel(
                     new ActorModel("Player", new ActorControllers.AISystems.Input(), new Vector2Int(0, 0))
                 );
-
-                // 敵の生成をループで行う
                 for (int i = 1; i <= 3; i++)
                 {
                     gameModel.AddActorModel(
