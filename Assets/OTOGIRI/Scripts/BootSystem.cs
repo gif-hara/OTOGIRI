@@ -1,3 +1,4 @@
+using OTOGIRI.DungeonSystems;
 using OTOGIRI.GameSystems;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace OTOGIRI
             HK.Framework.BootSystems.BootSystem.AdditionalSetupContainerBuilderAsync += (builder) =>
             {
                 GameEvents.RegisterEvents(builder);
+                DungeonEvents.RegisterEvents(builder);
             };
         }
     }

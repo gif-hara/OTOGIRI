@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using OTOGIRI.ActorControllers;
+using OTOGIRI.DungeonSystems;
 
 namespace OTOGIRI.GameSystems
 {

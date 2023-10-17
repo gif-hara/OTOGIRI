@@ -1,7 +1,7 @@
 using HK.Framework.MessageSystems;
 using MessagePipe;
 
-namespace OTOGIRI
+namespace OTOGIRI.DungeonSystems
 {
     /// <summary>
     /// ダンジョンに関するイベント

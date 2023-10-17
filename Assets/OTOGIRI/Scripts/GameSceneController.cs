@@ -31,6 +31,16 @@ namespace OTOGIRI.SceneControllers
                         new ActorModel($"Enemy{i}", new ActorControllers.AISystems.Random(), new Vector2Int(0, 0))
                     );
                 }
+                var map = new Define.CellType[10, 10];
+                for (var y = 0; y < map.GetLength(0); y++)
+                {
+                    for (var x = 0; x < map.GetLength(1); x++)
+                    {
+                        map[x, y] = Define.CellType.Ground;
+                    }
+                }
+                gameModel.DungeonModel.SetMap(map);
+
                 await gamePresenter.BeginGameLoopAsync(gameModel, cancellationToken);
             }
             catch (OperationCanceledException)

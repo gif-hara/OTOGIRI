@@ -1,4 +1,4 @@
-namespace OTOGIRI
+namespace OTOGIRI.DungeonSystems
 {
     public class DungeonModel
     {
