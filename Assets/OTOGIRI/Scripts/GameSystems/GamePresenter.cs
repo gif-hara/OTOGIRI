@@ -10,7 +10,7 @@ namespace OTOGIRI.GameSystems
     {
         public async UniTask BeginGameLoopAsync(GameModel gameModel, CancellationToken cancellationToken)
         {
-            var actorBehaviourInvoker = new ActorControllers.BehaviourInvokers.Log();
+            var actorPresenter = new ActorPresenter();
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -21,12 +21,7 @@ namespace OTOGIRI.GameSystems
                     {
                         var actorBehaviour = await actorModel.AI.ThinkAsync(actorModel, actorScope.Token);
                         actorScope.Cancel();
-                        await actorBehaviourInvoker.InvokeAsync(
-                            actorModel,
-                            actorBehaviour,
-                            gameModel,
-                            cancellationToken
-                            );
+                        await actorPresenter.ExecuteAsync(gameModel, actorModel, actorBehaviour, cancellationToken);
                     }
                 }
             }
