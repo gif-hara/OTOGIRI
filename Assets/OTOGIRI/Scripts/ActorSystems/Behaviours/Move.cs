@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using OTOGIRI.GameSystems;
 
 namespace OTOGIRI.ActorControllers.Behaviours
@@ -12,9 +14,10 @@ namespace OTOGIRI.ActorControllers.Behaviours
             this.direction = direction;
         }
 
-        public override void Execute(ActorModel actorModel, GameModel gameModel)
+        public override UniTask ExecuteAsync(ActorModel actorModel, GameModel gameModel, CancellationToken cancellationToken)
         {
             actorModel.Position += this.direction.ToVector2Int();
+            return UniTask.CompletedTask;
         }
     }
 }

@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using OTOGIRI.GameSystems;
 
 namespace OTOGIRI.ActorControllers.Behaviours
@@ -8,7 +10,7 @@ namespace OTOGIRI.ActorControllers.Behaviours
 
         public int ConsumeActionPoint { get; }
 
-        public abstract void Execute(ActorModel actorModel, GameModel gameModel);
+        public abstract UniTask ExecuteAsync(ActorModel actorModel, GameModel gameModel, CancellationToken cancellationToken);
 
         public ActorBehaviour(Define.ActorBehaviourType behaviourType, int consumeActionPoint)
         {

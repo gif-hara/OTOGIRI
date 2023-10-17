@@ -11,15 +11,14 @@ namespace OTOGIRI
     /// </summary>
     public sealed class ActorPresenter
     {
-        public UniTask ExecuteAsync(
+        public async UniTask ExecuteAsync(
             GameModel gameModel,
             ActorModel actorModel,
             IActorBehaviour actorBehaviour,
             CancellationToken cancellationToken
             )
         {
-            actorBehaviour.Execute(actorModel, gameModel);
-            return UniTask.CompletedTask;
+            await actorBehaviour.ExecuteAsync(actorModel, gameModel, cancellationToken);
         }
     }
 }
