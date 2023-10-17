@@ -20,17 +20,16 @@ namespace OTOGIRI.SceneControllers
             try
             {
                 var gameModel = new GameModel();
-                var playerModel = new ActorModel(
-                    "Player", new ActorControllers.AISystems.Input(), new Vector2Int(0, 0)
-                    );
-                gameModel.AddActorModel(playerModel);
+                gameModel.AddActorModel(
+                    new ActorModel("Player", new ActorControllers.AISystems.Input(), new Vector2Int(0, 0))
+                );
 
                 // 敵の生成をループで行う
                 for (int i = 1; i <= 3; i++)
                 {
                     gameModel.AddActorModel(
                         new ActorModel($"Enemy{i}", new ActorControllers.AISystems.Random(), new Vector2Int(0, 0))
-                        );
+                    );
                 }
 
                 var actorBehaviourInvoker = new ActorControllers.BehaviourInvokers.Log();
