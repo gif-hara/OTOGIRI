@@ -26,11 +26,13 @@ namespace OTOGIRI.GameSystems
         public void AddActorModel(ActorModel model)
         {
             this.actorModels.Add(model);
+            GameEvents.AddedActorModel.Publish(model);
         }
 
         public void RemoveActorModel(ActorModel model)
         {
             this.actorModels.Remove(model);
+            GameEvents.RemovedActorModel.Publish(model);
         }
     }
 }
